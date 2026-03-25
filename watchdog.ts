@@ -2,7 +2,7 @@ import {exec} from "child_process"
 import cron from "node-cron"
 import fs from "fs"
 
-const serviceName = "vgc"
+const serviceName = "service_name_here" 
 const delay_ms = 5000
 
 function log (message: string) {
