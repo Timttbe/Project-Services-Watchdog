@@ -1,4 +1,4 @@
-# Service Watchdog
+# Project Services Watchdog
 
 A lightweight Windows service monitor written in TypeScript. Automatically checks if a target service is running and restarts it if needed — and performs a scheduled daily restart to keep things healthy.
 
