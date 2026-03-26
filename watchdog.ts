@@ -2,8 +2,33 @@ import {exec} from "child_process"
 import cron from "node-cron"
 import fs from "fs"
 
-const serviceName = "service_name_here" 
-const delay_ms = 5000
+interface Config {
+    service_name: string
+    delay_ms: number
+    check_interval_seconds: number
+    restart_hour: number
+}
+
+function loadConfig(): Config {
+    if (!fs.existsSync("config.json")){
+        throw new Error("config.json  not found. Please create it before running the watchdog.")
+    }
+
+    const config: Config = JSON.parse(fs.readFileSync("config.json", "utf-8"))
+
+    if (!config.service_name) throw new Error("Config: Missing 'service_name' field.")
+    if (config.delay_ms < 0) throw new Error("Config: 'delay_ms' must be a positive number.")
+    if (config.check_interval_seconds < 5) throw new Error("Config: 'check_interval_seconds' must be at least 5 seconds.")
+    if (config.restart_hour < 0 || config.restart_hour > 23) throw new Error("Config: 'restart_hour' must be between 0 and 23.")
+
+    return config
+}
+
+const config = loadConfig()
+const serviceName = config.service_name
+const delay_ms = config.delay_ms
+const check_interval_seconds = config.check_interval_seconds
+const restart_hour = config.restart_hour
 
 function log (message: string) {
     const timestamp = new Date().toISOString()
@@ -28,6 +53,7 @@ async function checkService() {
             await restartService()
         } else {
             log("Service running normally")
+            await restartService()
         }
 
     } catch (err) {
@@ -75,7 +101,7 @@ async function restartService() {
 log("Watchdog started. Monitoring service every minute...")
 console.log("Watchdog started. Monitoring service every minute...")
 
-cron.schedule("*/10 * * * * *", checkService)
-cron.schedule("0 3 * * *", restartService)
+cron.schedule(`*/${check_interval_seconds} * * * * *`, checkService)
+cron.schedule(`0 ${restart_hour} * * *`, restartService)
 
 
