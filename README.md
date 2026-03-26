@@ -25,7 +25,7 @@ A lightweight Windows service monitor written in TypeScript. Automatically check
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/service-watchdog.git
+git clone https://github.com/Timttbe/Project-Services-Watchdog.git
 cd service-watchdog
 
 # Install dependencies
@@ -36,32 +36,29 @@ npm install
 
 ## Configuration
 
-Edit the constants and cron expressions at the top of `src/index.ts`:
-
-```typescript
-const serviceName = "service name"   // Name of the Windows service to monitor
-const delay_ms = 5000       // Wait time (ms) between stop and start on forced restart
+All settings are managed via a `config.json` file in the project root — no need to edit the source code.
+ 
+Create a `config.json` based on the example below:
+ 
+```json
+{
+    "service_name": "your_service_name", // Name of the Windows service to monitor
+    "delay_ms": number, // Wait time (ms) between stop and start on forced restart, exemple 5000 (5 seconds)
+    "check_interval_seconds": number, // Health check interval, exemple 10 (10 seconds)
+    "restart_hour": number // Scheduled restart time, exemple 3 ( 3:00 AM daily)
+}
 ```
-
-And the cron schedules near the bottom of the file:
-
-```typescript
-cron.schedule("*/10 * * * * *", checkService)  // Health check interval (default: every 10 seconds)
-cron.schedule("0 3 * * *", restartService)      // Scheduled restart time (default: 3:00 AM daily)
-```
-
-Some useful cron examples:
-
-| Expression | Meaning |
-|---|---|
-| `*/10 * * * * *` | Every 10 seconds |
-| `*/30 * * * * *` | Every 30 seconds |
-| `* * * * *` | Every minute |
-| `0 3 * * *` | Every day at 3:00 AM |
-| `0 6 * * *` | Every day at 6:00 AM |
-| `0 3 * * 1` | Every Monday at 3:00 AM |
-
-> **Tip:** Use [crontab.guru](https://crontab.guru) to generate and validate custom cron expressions.
+ 
+| Field | Type | Description |
+|---|---|---|
+| `service_name` | string | Exact name of the Windows service to monitor |
+| `delay_ms` | number | Wait time (ms) between stop and start on a forced restart |
+| `check_interval_seconds` | number | How often to check service health (minimum: 5) |
+| `restart_hour` | number | Hour of the daily scheduled restart, 0–23 (e.g. `3` = 3:00 AM) |
+ 
+The app validates all fields on startup and throws a clear error if something is missing or invalid.
+ 
+> **Tip:** Add `config.json` to your `.gitignore` and commit a `config.example.json` instead, so each environment keeps its own settings without leaking data to the repository.
 
 ---
 
@@ -69,11 +66,11 @@ Some useful cron examples:
 
 ```bash
 # Run directly with ts-node
-npx ts-node src/index.ts
+npx ts-node watchdog.ts
 
 # Or build and run
 npx tsc
-node dist/index.js
+node watchdog.js
 ```
 
 > **Important:** Run the terminal as **Administrator**, otherwise the service commands will fail silently.
@@ -84,8 +81,8 @@ node dist/index.js
 
 | Schedule | Action |
 |---|---|
-| Every 10 seconds | Queries service status via `sc query`. If `STOPPED`, starts it immediately. |
-| Every day at 03:00 | Stops the service (if running), waits `delay_ms`, then starts it again. |
+| Every `check_interval_seconds` seconds | Queries service status via `sc query`. If `STOPPED`, starts it immediately. |
+| Every day at `restart_hour`:00 | Stops the service (if running), waits `delay_ms`, then starts it again. |
 
 All events are logged to `watchdog.log` in the project root:
 
@@ -110,4 +107,3 @@ All events are logged to `watchdog.log` in the project root:
 ## Author
 
 Developed by **Davi Han Ko**  
-Microcontrollers Course Project
