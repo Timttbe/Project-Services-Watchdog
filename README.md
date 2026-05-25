@@ -6,10 +6,10 @@ A lightweight Windows service monitor written in TypeScript. Automatically check
 
 ## Features
 
-- 🔍 **Health check every 10 seconds** — detects a stopped service and restarts it automatically
-- 🔄 **Scheduled daily restart at 3:00 AM** — forces a clean restart regardless of service state
-- 📝 **Persistent logging** — all events are appended to `watchdog.log` with timestamps
-- ⚙️ **Simple configuration** — change the service name and delay in a couple of lines
+- **Health check every 10 seconds** — detects a stopped service and restarts it automatically
+- **Scheduled daily restart at 3:00 AM** — forces a clean restart regardless of service state
+- **Persistent logging** — all events are appended to `watchdog.log` with timestamps
+- **Simple configuration** — change the service name and delay in a couple of lines
 
 ---
 
